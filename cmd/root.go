@@ -9,7 +9,17 @@ import (
 var rootCmd = &cobra.Command{
 	Version: "0.1.0",
 	Use:     "tempura",
-	Short:   "",
+	Short:   `A CLI tool that leverages templates to smoothly create projects.`,
+	Long: `  ______________  _______  __  ____    ___ 
+ /_  __/ ____/  |/  / __ \/ / / / /   /   |
+  / / / __/ / /|_/ / /_/ / / / / /   / /| |
+ / / / /___/ /  / / ____/ /_/ / /___/ ___ |
+/_/ /_____/_/  /_/_/    \____/_____/_/  |_|
+
+A CLI tool that leverages templates to smoothly create projects.
+
+GitHub:
+  https://github.com/nihi-lo/tempura`,
 }
 
 func Execute() {
@@ -20,4 +30,5 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
 }
