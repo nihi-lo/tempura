@@ -109,7 +109,7 @@ var createCmd = &cobra.Command{
 		// コマンドライン引数を取得する
 		projectName := ""
 
-		if len(args) > 1 {
+		if len(args) >= 1 {
 			projectName = args[0]
 		}
 
