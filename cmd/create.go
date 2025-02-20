@@ -16,11 +16,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type TemplateData struct {
+type TemplateInputData struct {
 	ProjectName string
 }
 
-func copyTemplateFile(src string, dest string, data TemplateData) error {
+func copyTemplateFile(src string, dest string, data TemplateInputData) error {
 	content, err := templates.Templates.ReadFile(src)
 	if err != nil {
 		return fmt.Errorf("failed to read template file %s: %w", src, err)
@@ -109,7 +109,7 @@ var createCmd = &cobra.Command{
 		templateName := "vite-react-tw3-ts"
 
 		// テンプレートからプロジェクトを作成する
-		data := TemplateData{
+		data := TemplateInputData{
 			ProjectName: projectName,
 		}
 
