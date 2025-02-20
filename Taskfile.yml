@@ -1,0 +1,7 @@
+version: "3"
+
+tasks:
+  build:linux:
+    cmds:
+      - GOOS="linux" GOARCH="amd64" go build -o ./bin/tempura main.go
+    silent: true
