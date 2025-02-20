@@ -107,7 +107,11 @@ var createCmd = &cobra.Command{
 		cmd.SilenceUsage = true
 
 		// コマンドライン引数を取得する
-		projectName := args[0]
+		projectName := ""
+
+		if len(args) > 1 {
+			projectName = args[0]
+		}
 
 		// プロジェクト名が未指定の場合、ユーザーにプロジェクト名の入力を求める
 		if projectName == "" {
