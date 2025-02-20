@@ -73,15 +73,20 @@ var createCmd = &cobra.Command{
 		// 事前設定: エラー発生時にコマンドの使い方を表示させない
 		cmd.SilenceUsage = true
 
-		// ユーザーにプロジェクト名の入力を求める
-		ml, err := tea.NewProgram(tui.InitialModel()).Run()
-		if err != nil {
-			return err
-		}
+		// コマンドライン引数を取得する
+		projectName := args[0]
 
-		projectName := ml.(tui.ProjectNameInputModel).Input.Value()
+		// プロジェクト名が未指定の場合、ユーザーにプロジェクト名の入力を求める
 		if projectName == "" {
-			return fmt.Errorf("project name is empty")
+			ml, err := tea.NewProgram(tui.InitialModel()).Run()
+			if err != nil {
+				return err
+			}
+
+			projectName = ml.(tui.ProjectNameInputModel).Input.Value()
+			if projectName == "" {
+				return fmt.Errorf("project name is empty")
+			}
 		}
 
 		// 現在の実行ディレクトリにすでに同名プロジェクトがないか確認する
