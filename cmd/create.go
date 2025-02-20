@@ -45,10 +45,6 @@ func copyTemplateFile(src string, dest string, data TemplateData) error {
 }
 
 func copyFile(src string, dest string) error {
-	if _, err := os.Stat(dest); err == nil {
-		log.Printf("info: file %s already exists, overwriting...", dest)
-	}
-
 	srcFile, err := templates.Templates.Open(src)
 	if err != nil {
 		return fmt.Errorf("failed to open source file %s: %w", src, err)
@@ -70,17 +66,47 @@ func copyFile(src string, dest string) error {
 
 var createCmd = &cobra.Command{
 	Use:     "create",
-	Aliases: []string{"c"},
+	Aliases: []string{"c", "init"},
 	Short:   "Select a template to create a project",
 	Example: "tempura create",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// 事前設定: エラー発生時にコマンドの使い方を表示させない
+		cmd.SilenceUsage = true
+
+		// ユーザーにプロジェクト名の入力を求める
 		ml, err := tea.NewProgram(tui.InitialModel()).Run()
 		if err != nil {
 			return err
 		}
-		projectName := ml.(tui.ProjectNameInputModel).Input.Value()
 
+		projectName := ml.(tui.ProjectNameInputModel).Input.Value()
+		if projectName == "" {
+			return fmt.Errorf("project name is empty")
+		}
+
+		// 現在の実行ディレクトリにすでに同名プロジェクトがないか確認する
+		projectPath := projectName
+		if fi, err := os.Stat(projectPath); err == nil {
+			if !fi.IsDir() {
+				return fmt.Errorf("not a directory. scandir '%s'", projectPath)
+			}
+
+			entries, err := os.ReadDir(projectPath)
+			if err != nil {
+				return fmt.Errorf("directory read failure: %w", err)
+			}
+			if len(entries) != 0 {
+				return fmt.Errorf("\"%s\" already exists and isn't empty", projectPath)
+			}
+		}
+
+		// ユーザーにテンプレートの選択を求める
 		templateName := "vite-react-tw3-ts"
+
+		// テンプレートからプロジェクトを作成する
+		data := TemplateData{
+			ProjectName: projectName,
+		}
 
 		err = fs.WalkDir(templates.Templates, templateName, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
@@ -101,9 +127,6 @@ var createCmd = &cobra.Command{
 			}
 
 			if filepath.Ext(path) == ".tmpl" {
-				data := TemplateData{
-					ProjectName: projectName,
-				}
 				if err := copyTemplateFile(path, strings.TrimSuffix(destPath, ".tmpl"), data); err != nil {
 					log.Printf("warning: failed to process template file %s: %v", path, err)
 				}
