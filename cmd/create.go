@@ -20,6 +20,39 @@ type TemplateInputData struct {
 	ProjectName string
 }
 
+func createProject(projectPath string, templateName string, data TemplateInputData) error {
+	return fs.WalkDir(templates.Templates, templateName, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return fmt.Errorf("failed to walk dir %s: %w", path, err)
+		}
+
+		relPath, err := filepath.Rel(templateName, path)
+		if err != nil {
+			return fmt.Errorf("failed to calculate relative path %s: %w", path, err)
+		}
+		destPath := filepath.Join(projectPath, relPath)
+
+		if d.IsDir() {
+			if err := os.MkdirAll(destPath, 0755); err != nil {
+				log.Printf("warning: failed to create directory %s: %v", destPath, err)
+			}
+			return nil
+		}
+
+		if filepath.Ext(path) == ".tmpl" {
+			if err := copyTemplateFile(path, strings.TrimSuffix(destPath, ".tmpl"), data); err != nil {
+				log.Printf("warning: failed to process template file %s: %v", path, err)
+			}
+		} else {
+			if err := copyFile(path, destPath); err != nil {
+				log.Printf("warning: failed to copy file %s: %v", path, err)
+			}
+		}
+
+		return nil
+	})
+}
+
 func copyTemplateFile(src string, dest string, data TemplateInputData) error {
 	content, err := templates.Templates.ReadFile(src)
 	if err != nil {
@@ -111,42 +144,11 @@ var createCmd = &cobra.Command{
 		}
 
 		// ユーザーにテンプレートの選択を求める
-		templateName := "vite-react-tw3-ts"
+		templateName := "vite-react-tw3-ts" // TODO: 今は固定値
 
 		// テンプレートからプロジェクトを作成する
-		data := TemplateInputData{
+		err = createProject(projectPath, templateName, TemplateInputData{
 			ProjectName: projectName,
-		}
-
-		err = fs.WalkDir(templates.Templates, templateName, func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return fmt.Errorf("failed to walk dir %s: %w", path, err)
-			}
-
-			relPath, err := filepath.Rel(templateName, path)
-			if err != nil {
-				return fmt.Errorf("failed to calculate relative path %s: %w", path, err)
-			}
-			destPath := filepath.Join(projectPath, relPath)
-
-			if d.IsDir() {
-				if err := os.MkdirAll(destPath, 0755); err != nil {
-					log.Printf("warning: failed to create directory %s: %v", destPath, err)
-				}
-				return nil
-			}
-
-			if filepath.Ext(path) == ".tmpl" {
-				if err := copyTemplateFile(path, strings.TrimSuffix(destPath, ".tmpl"), data); err != nil {
-					log.Printf("warning: failed to process template file %s: %v", path, err)
-				}
-			} else {
-				if err := copyFile(path, destPath); err != nil {
-					log.Printf("warning: failed to copy file %s: %v", path, err)
-				}
-			}
-
-			return nil
 		})
 		if err != nil {
 			log.Fatalf("error during file processing: %v\n", err)
