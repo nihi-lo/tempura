@@ -152,6 +152,7 @@ var createCmd = &cobra.Command{
 			log.Fatalf("error during file processing: %v\n", err)
 		}
 
+		fmt.Printf("\nDone. Let's start developing!\n\n")
 		return nil
 	},
 }
