@@ -85,18 +85,23 @@ var createCmd = &cobra.Command{
 		}
 
 		// 現在の実行ディレクトリにすでに同名プロジェクトがないか確認する
-		projectPath := projectName
+		wd, err := os.Getwd()
+		if err != nil {
+			return fmt.Errorf("failed to get current directory: %w", err)
+		}
+
+		projectPath := filepath.Join(wd, projectName)
 		if fi, err := os.Stat(projectPath); err == nil {
 			if !fi.IsDir() {
-				return fmt.Errorf("not a directory. scandir '%s'", projectPath)
+				return fmt.Errorf("not a directory. scandir '%s'", filepath.Base(projectPath))
 			}
 
 			entries, err := os.ReadDir(projectPath)
 			if err != nil {
-				return fmt.Errorf("directory read failure: %w", err)
+				return fmt.Errorf("failed to read directory: %w", err)
 			}
 			if len(entries) != 0 {
-				return fmt.Errorf("\"%s\" already exists and isn't empty", projectPath)
+				return fmt.Errorf("\"%s\" already exists and isn't empty", filepath.Base(projectPath))
 			}
 		}
 
@@ -117,7 +122,7 @@ var createCmd = &cobra.Command{
 			if err != nil {
 				return fmt.Errorf("failed to calculate relative path %s: %w", path, err)
 			}
-			destPath := filepath.Join(projectName, relPath)
+			destPath := filepath.Join(projectPath, relPath)
 
 			if d.IsDir() {
 				if err := os.MkdirAll(destPath, 0755); err != nil {
