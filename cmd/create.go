@@ -115,7 +115,7 @@ var createCmd = &cobra.Command{
 
 		// プロジェクト名が未指定の場合、ユーザーにプロジェクト名の入力を求める
 		if projectName == "" {
-			ml, err := tea.NewProgram(tui.InitialModel()).Run()
+			ml, err := tea.NewProgram(tui.InitialProjectNameInputModel()).Run()
 			if err != nil {
 				return err
 			}

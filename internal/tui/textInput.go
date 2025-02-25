@@ -11,7 +11,7 @@ type ProjectNameInputModel struct {
 	Input textinput.Model
 }
 
-func InitialModel() ProjectNameInputModel {
+func InitialProjectNameInputModel() ProjectNameInputModel {
 	ti := textinput.New()
 	ti.Placeholder = "new-project"
 	ti.Focus()
