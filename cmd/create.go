@@ -148,7 +148,15 @@ var createCmd = &cobra.Command{
 		}
 
 		// ユーザーにテンプレートの選択を求める
-		templateName := "vite-react-tw3-ts" // TODO: 今は固定値
+		tsm, err := tea.NewProgram(tui.InitialTemplateSelectModel()).Run()
+		if err != nil {
+			return err
+		}
+
+		templateName := tsm.(tui.TemplateSelectModel).Choice
+		if templateName == "" {
+			return nil
+		}
 
 		// テンプレートからプロジェクトを作成する
 		err = createProject(projectPath, templateName, TemplateInputData{
