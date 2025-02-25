@@ -20,6 +20,25 @@ type TemplateInputData struct {
 	ProjectName string
 }
 
+func templateExists(folderName string) (bool, error) {
+	// ディレクトリ内のファイルとサブディレクトリを取得
+	entries, err := fs.ReadDir(templates.Templates, ".")
+	if err != nil {
+		return false, fmt.Errorf("failed to read template dir: %v", err)
+	}
+
+	// 各エントリをチェック
+	for _, entry := range entries {
+		if entry.IsDir() && entry.Name() == folderName {
+			// フォルダが見つかった場合
+			return true, nil
+		}
+	}
+
+	// フォルダが見つからなかった場合
+	return false, nil
+}
+
 func createProject(projectPath string, templateName string, data TemplateInputData) error {
 	return fs.WalkDir(templates.Templates, templateName, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -106,14 +125,19 @@ var createCmd = &cobra.Command{
 		// 事前設定: エラー発生時にコマンドの使い方を表示させない
 		cmd.SilenceUsage = true
 
-		// コマンドライン引数を取得する
+		// コマンドライン引数および、フラグを取得する
 		projectName := ""
-
 		if len(args) >= 1 {
 			projectName = args[0]
 		}
 
+		templateName, err := cmd.Flags().GetString("template")
+		if err != nil {
+			return fmt.Errorf("failed to read template flag: %w", err)
+		}
+
 		// プロジェクト名が未指定の場合、ユーザーにプロジェクト名の入力を求める
+		// その後、現在の実行ディレクトリにすでに同名プロジェクトがないか確認する
 		if projectName == "" {
 			ml, err := tea.NewProgram(tui.InitialProjectNameInputModel()).Run()
 			if err != nil {
@@ -126,7 +150,6 @@ var createCmd = &cobra.Command{
 			}
 		}
 
-		// 現在の実行ディレクトリにすでに同名プロジェクトがないか確認する
 		wd, err := os.Getwd()
 		if err != nil {
 			return fmt.Errorf("failed to get current directory: %w", err)
@@ -147,15 +170,26 @@ var createCmd = &cobra.Command{
 			}
 		}
 
-		// ユーザーにテンプレートの選択を求める
-		tsm, err := tea.NewProgram(tui.InitialTemplateSelectModel()).Run()
-		if err != nil {
-			return err
+		// テンプレート名が未指定の場合、ユーザーにテンプレートの選択を求める
+		// その後、テンプレート名が有効かどうか確認する
+		if templateName == "" {
+			tsm, err := tea.NewProgram(tui.InitialTemplateSelectModel()).Run()
+			if err != nil {
+				return err
+			}
+
+			templateName = tsm.(tui.TemplateSelectModel).Choice
+			if templateName == "" {
+				return nil
+			}
 		}
 
-		templateName := tsm.(tui.TemplateSelectModel).Choice
-		if templateName == "" {
-			return nil
+		exists, err := templateExists(templateName)
+		if err != nil {
+			return fmt.Errorf("failed to template name validity check: %w", err)
+		}
+		if !exists {
+			return fmt.Errorf("invalid template name")
 		}
 
 		// テンプレートからプロジェクトを作成する
@@ -172,5 +206,6 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
+	createCmd.Flags().StringP("template", "t", "", "template name")
 	rootCmd.AddCommand(createCmd)
 }
