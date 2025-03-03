@@ -7,7 +7,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Version: "0.1.0",
+	Version: "0.2.0",
 	Use:     "tempura",
 	Short:   `A CLI tool that leverages templates to smoothly create projects.`,
 	Long: `  ______________  _______  __  ____    ___ 
