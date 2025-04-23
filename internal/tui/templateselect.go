@@ -30,8 +30,8 @@ type TemplateSelectModel struct {
 
 func InitialTemplateSelectModel() TemplateSelectModel {
 	items := []list.Item{
-		item{title: "vite-react-tw-ts", desc: "PrettierとTailwind CSSが導入済みのReactプロジェクト"},
 		item{title: "nextjs-approuter-ts", desc: "Prettierが導入済みのNext.jsプロジェクト"},
+		item{title: "vite-react-tw-ts", desc: "PrettierとTailwind CSSが導入済みのReactプロジェクト"},
 	}
 
 	delegate := list.NewDefaultDelegate()
