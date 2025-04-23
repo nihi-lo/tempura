@@ -1,0 +1,8 @@
+services:
+  app:
+    image: tempura:latest
+    build: .
+    volumes:
+      - .:/app
+    command: /bin/bash
+    tty: true

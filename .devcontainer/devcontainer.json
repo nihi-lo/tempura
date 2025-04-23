@@ -1,0 +1,36 @@
+{
+  "name": "tempura",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "app",
+  "workspaceFolder": "/app",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.Go",
+        "mhutchie.git-graph",
+        "seatonjiang.gitmoji-vscode",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+
+        "files.eol": "auto",
+
+        "git-graph.repository.fetchAndPrune": true,
+
+        "[go]": {
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          },
+          "editor.defaultFormatter": "golang.go",
+          "editor.formatOnSave": true,
+          "editor.insertSpaces": false
+        },
+        "[go.mod]": {
+          "editor.defaultFormatter": "golang.go"
+        }
+      }
+    }
+  }
+}
