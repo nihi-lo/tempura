@@ -30,6 +30,7 @@ type TemplateSelectModel struct {
 
 func InitialTemplateSelectModel() TemplateSelectModel {
 	items := []list.Item{
+		item{title: "vite-react-tw-ts", desc: "PrettierとTailwind CSSが導入済みのReactプロジェクト"},
 		item{title: "vite-react-tw3-ts", desc: "PrettierとTailwind CSS v3が導入済みのReactプロジェクト"},
 		item{title: "nextjs-approuter-ts", desc: "Prettierが導入済みのNext.jsプロジェクト"},
 	}
