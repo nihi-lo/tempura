@@ -1,6 +1,11 @@
 version: "3"
 
 tasks:
+  build:mac:
+    cmds:
+      - GOOS="darwin" GOARCH="amd64" go build -o ./bin/tempura main.go
+    silent: true
+
   build:linux:
     cmds:
       - GOOS="linux" GOARCH="amd64" go build -o ./bin/tempura main.go
